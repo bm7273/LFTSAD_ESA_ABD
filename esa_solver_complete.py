@@ -327,11 +327,29 @@ class ESASolver:
         timestamps = self.test_dataset.get_full_timestamps()
         full_range = (timestamps.iloc[0], timestamps.iloc[-1])
         
+        
+        
         # Get ground truth labels in ESA format
         y_true_df = self.labels_parser.get_labels_dataframe(
             channel_filter=self.channel_names
         )
         
+        start, end = full_range
+
+        # keep only events that overlap the telemetry time range
+        y_true_df = y_true_df[
+            (y_true_df["EndTime"] >= start) &
+            (y_true_df["StartTime"] <= end)
+        ].copy()
+
+        # clip event bounds so all events lie inside full_range (satisfies metric assertions)
+        y_true_df["StartTime"] = y_true_df["StartTime"].clip(lower=start)
+        y_true_df["EndTime"]   = y_true_df["EndTime"].clip(upper=end)
+        print("y_true_df columns:", y_true_df.columns.tolist())
+        print("Filtered labels:", len(y_true_df),
+            "range:", y_true_df["StartTime"].min(), "to", y_true_df["EndTime"].max())
+        
+
         print(f"\nGround truth events: {len(y_true_df)}")
         print(f"Unique anomaly IDs: {y_true_df['ID'].nunique()}")
         print(f"Time range: {full_range[0]} to {full_range[1]}")
@@ -350,10 +368,10 @@ class ESASolver:
             # Use first channel for basic ESA scores
             esa_metric = ESAScores(
                 betas=self.beta,
-                full_range=full_range,
-                select_labels={"Category": ["Anomaly"]}
+                full_range=full_range
             )
-            
+            print("Telemetry range:", full_range[0], "to", full_range[1])
+            print("Labels range:", y_true_df["StartTime"].min(), "to", y_true_df["EndTime"].max())
             # Convert single channel for ESAScores
             y_pred_first = y_pred_dict[self.channel_names[0]]
             esa_results = esa_metric.score(y_true_df, y_pred_first)
@@ -371,8 +389,8 @@ class ESASolver:
         try:
             channel_metric = ChannelAwareFScore(
                 beta=self.beta if isinstance(self.beta, float) else self.beta,
-                full_range=full_range,
-                select_labels={"Category": ["Anomaly"]}
+                full_range=full_range
+                
             )
             
             channel_results = channel_metric.score(y_true_df, y_pred_dict)
@@ -387,8 +405,7 @@ class ESASolver:
         print("\n--- ADTQC Latency Metrics ---")
         try:
             adtqc_metric = ADTQC(
-                full_range=full_range,
-                select_labels={"Category": ["Anomaly"]}
+                full_range=full_range
             )
             
             adtqc_results = adtqc_metric.score(y_true_df, y_pred_dict)
