@@ -185,6 +185,7 @@ class ESASolver:
         print("Training completed!\n")
     
     def test(self):
+        t_test_start = time.time()
         """Test the model and compute metrics"""
         print("\n" + "="*60)
         print("Starting Testing and Evaluation")
@@ -243,7 +244,8 @@ class ESASolver:
         pred_binary = (anomaly_scores > thresh[None, :]).astype(int)              # (T, C)
         thresh_str = np.array2string(thresh, formatter={'float_kind': lambda x: f"{x:.6f}"})
         print(f"Thresholds (at {getattr(self, 'anormly_ratio', 1.0)}% anomaly ratio): {thresh_str}")
-        
+        t_test_end = time.time()
+        t_test =  t_test_end - t_test_start
         
         # Standard binary classification metrics (aggregated across channels)
         print("\n" + "="*60)
@@ -274,11 +276,11 @@ class ESASolver:
                 anomaly_scores=anomaly_scores
             )
         
-            return accuracy, precision, recall, f_score, esa_results, channel_results, adtqc
+            return accuracy, precision, recall, f_score, esa_results, channel_results, adtqc, t_test
 
         else: 
 
-            return accuracy, precision, recall, f_score
+            return accuracy, precision, recall, f_score, t_test
         
     def _reconstruct_from_windows(self, scores, labels, start_indices):
         """

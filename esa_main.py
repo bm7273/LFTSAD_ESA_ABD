@@ -7,7 +7,7 @@ This script shows:
 3. How to interpret the ESA metrics
 4. How to save and visualize results
 """
-
+import time
 import os
 import json
 import torch
@@ -120,43 +120,78 @@ def run_experiment(config):
     # Create solver
     solver = ESASolver(config)
     
+    
     # Train if training data is provided
     if hasattr(solver, 'train_loader'):
         print("\nTraining phase enabled")
+        t_train_start = time.time
         solver.train()
-        
+        t_train_end = time.time
+        t_train = t_train_end - t_train_start
         # Save model
         model_path = os.path.join(config['output_dir'], 'model.pth')
         torch.save(solver.model.state_dict(), model_path)
         print(f"Model saved to: {model_path}")
     else:
         print("\nNo training data provided, skipping training")
+   
+
     
+
     # Test and evaluate
     if solver.use_esa_metrics:
 
-        accuracy, precision, recall, f_score, esa_results, channel_results, adtqc = solver.test()
-
-        results = {
-            'accuracy': float(accuracy),
-            'precision': float(precision),
-            'recall': float(recall),
-            'f1_score': float(f_score),
-            **esa_results,
-            **channel_results,
-            **adtqc,
-        }
-    else: 
+        accuracy, precision, recall, f_score, esa_results, channel_results, adtqc, t_test = solver.test()
         
-        accuracy, precision, recall, f_score = solver.test()
+        if hasattr(solver, 'train_loader'):
+
+            results = {
+                'training time': float(t_train),
+                'testing time': float(t_test),
+                'accuracy': float(accuracy),
+                'precision': float(precision),
+                'recall': float(recall),
+                'f1_score': float(f_score),
+                **esa_results,
+                **channel_results,
+                **adtqc,
+            }
+
+        else: 
+
+            results = {
+                'testing time': float(t_test),
+                'accuracy': float(accuracy),
+                'precision': float(precision),
+                'recall': float(recall),
+                'f1_score': float(f_score),
+                **esa_results,
+                **channel_results,
+                **adtqc,
+            }
+    else: 
+
+        accuracy, precision, recall, f_score, t_test = solver.test()
+
+        if hasattr(solver, 'train_loader'):
         # Collect results
-        results = {
-            'accuracy': float(accuracy),
-            'precision': float(precision),
-            'recall': float(recall),
-            'f1_score': float(f_score),
-        }
-    
+            results = {
+                'training time': float(t_train),
+                'testing time': float(t_test),
+                'accuracy': float(accuracy),
+                'precision': float(precision),
+                'recall': float(recall),
+                'f1_score': float(f_score),
+            }
+        else:
+            results = {
+                'testing time': float(t_test),
+                'accuracy': float(accuracy),
+                'precision': float(precision),
+                'recall': float(recall),
+                'f1_score': float(f_score),
+            }
+            
     # Save results
     results_path = os.path.join(config['output_dir'], 'results.json')
     with open(results_path, 'w') as f:
