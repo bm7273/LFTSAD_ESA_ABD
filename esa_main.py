@@ -306,7 +306,7 @@ if __name__ == "__main__":
             "channel_41", "channel_42", "channel_43",
             "channel_44", "channel_45", "channel_46"
         ],
-        experiment_name="lftsad_3months_6ch"
+        experiment_name=f"lftsad_{args.dataset}_6ch"
     )
     
     results = run_experiment(config)
