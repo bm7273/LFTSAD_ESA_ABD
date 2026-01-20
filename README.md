@@ -22,11 +22,13 @@ esa_data_loader.py loads data for the ESA experiments.
 - esa_metrics: Contains code to calculate the metrics for ESA-ADB
 - model: LFTSAD model folder
 - esa_solver_complete.py: Another python file. The training, validation, and testing processing are all in there
-- spec-file.txt: Python packages needed to run this repo
+- environment.yml: Python packages needed to run this repo
 ## Usage
-1. Install Python 3.6, PyTorch >= 1.4.0
-2. Download the datasets
-3. To train and evaluate LFTSAD on a dataset, for example on 3 month data, run the following command:
+1. Install packages using conda env create -f environment.yml
+2. Activate environment using conda activate LFTSAD
+3. Download the datasets and place such that dataset x_months.test and x_months.train for Mission Y are as shown in the image<img width="441" height="514" alt="image" src="https://github.com/user-attachments/assets/77060afc-ac64-41e9-9de2-6aa489f21952" />
+
+4. To train and evaluate LFTSAD on a dataset, for example on 3 month data, run the following command:
 ```bash
 python esa_main.py --dataset 3_months
 ```
