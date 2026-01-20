@@ -7,7 +7,7 @@ This repository contains the adapted implementation for the LFTSAD ([paper](http
 ## Requirements
 Create a new COnda environment and run 
 ```bash 
-conda create --name LFTSAD --file spec-file.txt
+conda env create -f environment.yml
 ```
 
 ## Data 
