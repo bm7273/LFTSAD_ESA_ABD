@@ -56,7 +56,7 @@ class ESADataLoaderfadsd:
         
         # Load data
         df = pd.read_csv(csv_path)
-        self.timestamps = pd.to_datetime(df.iloc[:, 0])
+        self.timestamps = pd.to_datetime(df.iloc[:, 0], utc=True)
         
         # Select channels
         if target_channels is not None:
@@ -471,7 +471,10 @@ class ESASolverMultiModel:
                 
                 # Forward pass - returns scalar score per sample
                 scores = self.model(input, data_global)  # (B,)
-                
+                if torch.isnan(scores).any() or torch.isinf(scores).any():
+                    print("NaNs/Infs in FADSD scores!",
+                        "nan:", torch.isnan(scores).sum().item(),
+                        "inf:", torch.isinf(scores).sum().item())
                 # Expand to window size and channels
                 # scores shape: (B,) -> (B, win_size, C)
                 scores_expanded = scores.unsqueeze(-1).unsqueeze(-1).expand(

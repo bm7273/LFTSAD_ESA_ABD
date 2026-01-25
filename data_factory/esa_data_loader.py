@@ -174,8 +174,8 @@ class ESALabelsParser:
         self.labels_df = pd.read_csv(labels_csv_path)
         
         # Parse timestamps
-        self.labels_df['StartTime'] = pd.to_datetime(self.labels_df['StartTime'])
-        self.labels_df['EndTime'] = pd.to_datetime(self.labels_df['EndTime'])
+        self.labels_df['StartTime'] = pd.to_datetime(self.labels_df['StartTime'], utc=True)
+        self.labels_df['EndTime'] = pd.to_datetime(self.labels_df['EndTime'], utc=True)
         
         print(f"Loaded {len(self.labels_df)} anomaly events")
         print(f"Unique anomaly IDs: {self.labels_df['ID'].nunique()}")
@@ -212,51 +212,3 @@ class ESALabelsParser:
         return self.labels_df['Category'].unique()
 
 
-# Example usage
-if __name__ == "__main__":
-    # Example: Load ESA data
-    csv_path = "path/to/your/84_months.test.csv"
-    labels_csv = "path/to/labels.csv"
-    
-    # Define target channels (example subset)
-    target_channels = [
-        "channel_41", "channel_42", "channel_43", 
-        "channel_44", "channel_45", "channel_46"
-    ]
-    
-    # Create data loader
-    test_loader, test_dataset = get_esa_loader(
-        csv_path=csv_path,
-        batch_size=32,
-        win_size=100,
-        step=1,  # Use step=1 for test to get all predictions
-        target_channels=target_channels,
-        mode='test'
-    )
-    
-    # Load labels
-    labels_parser = ESALabelsParser(labels_csv)
-    
-    # Get labels for target channels
-    y_true_df = labels_parser.get_labels_dataframe(
-        channel_filter=target_channels
-    )
-    
-    print(f"\nTest dataset info:")
-    print(f"Number of batches: {len(test_loader)}")
-    print(f"Channels: {test_dataset.get_channel_names()}")
-    print(f"Time range: {test_dataset.get_timestamp_range(0)}")
-    
-    print(f"\nLabels info:")
-    print(f"Anomaly events in target channels: {len(y_true_df)}")
-    print(f"Anomaly categories: {labels_parser.get_anomaly_categories()}")
-    
-    # Test batch loading
-    for batch_idx, (data, labels, start_indices) in enumerate(test_loader):
-        print(f"\nBatch {batch_idx}:")
-        print(f"Data shape: {data.shape}")  # (batch_size, win_size, n_channels)
-        print(f"Labels shape: {labels.shape}")
-        print(f"Start indices: {start_indices[:5].numpy()}")
-        
-        if batch_idx == 0:  # Just show first batch
-            break

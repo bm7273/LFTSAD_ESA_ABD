@@ -55,19 +55,21 @@ class FADSD(nn.Module):
 
 
 
-        if(self.select==0):
-            score_1 = self.mse_1(torch.abs(in_mean_1_pre), torch.abs(in_x_1))
-            score_2 = self.mse_2(torch.abs(in_mean_2_pre), torch.abs(in_x_2))
+        if self.select == 0:
+            score_1 = self.mse_1(torch.abs(in_mean_1_pre), torch.abs(in_x_1))   # (B,)
+            score_2 = self.mse_2(torch.abs(in_mean_2_pre), torch.abs(in_x_2))   # (B,)
         else:
             score_1 = self.mse_1(torch.angle(in_mean_1_pre), torch.angle(in_x_1))
             score_2 = self.mse_2(torch.angle(in_mean_2_pre), torch.angle(in_x_2))
 
-        score_1 = (score_1 - score_1.min()) / (score_1.max() - score_1.min())
-        score_2 = (score_2 - score_2.min()) / (score_2.max() - score_2.min())
+        eps = 1e-8
+        den1 = (score_1.max() - score_1.min()).clamp_min(eps)
+        den2 = (score_2.max() - score_2.min()).clamp_min(eps)
+        score_1 = (score_1 - score_1.min()) / den1
+        score_2 = (score_2 - score_2.min()) / den2
 
-        score, _ = torch.max(torch.stack((score_1, score_2), dim=0), dim=0)
+        return self.p * score_1 + (1 - self.p) * score_2
 
-        return self.p*score_1+(1-self.p)*score_2
 
     def mse_1(self, x, y):
         return torch.mean(torch.mean((x-y)**2,dim=-1),dim=-1)

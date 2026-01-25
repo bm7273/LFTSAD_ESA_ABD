@@ -360,7 +360,7 @@ class ESASolver:
         print(f"Unique anomaly IDs: {y_true_df['ID'].nunique()}")
         print(f"Time range: {full_range[0]} to {full_range[1]}")
         
-        # Create predictions in ESA format (multi-channel)
+        """# Create predictions in ESA format (multi-channel)
         y_pred_dict = {}
         for ch_idx, ch_name in enumerate(self.channel_names):
             y_pred_channel = []
@@ -368,19 +368,41 @@ class ESASolver:
                 y_pred_channel.append([timestamps.iloc[i], int(predictions[i, ch_idx])])
             y_pred_dict[ch_name] = y_pred_channel
         
+
+        # single channel format
+        y_any_pred_dict = {}
+        global_pred = predictions.any(axis=1).astype(int)
+        y_any_pred = []
+        for i in range(len(global_pred)):
+            y_any_pred.append([timestamps.iloc[i], int(global_pred[i])])
+
+        #y_any_pred_dict["is_anomaly"] = y_any_pred"""
+
+        ts = timestamps.tolist()  # avoid repeated .iloc
+
+        y_pred_dict = {
+            ch_name: [[t, int(p)] for t, p in zip(ts, predictions[:, ch_idx])]
+            for ch_idx, ch_name in enumerate(self.channel_names)
+        }
+
+        global_pred = predictions.any(axis=1).astype(int)
+        y_any_pred = [[t, int(p)] for t, p in zip(ts, global_pred)]
+        
         # 1. ESA Scores (Event-wise and Affiliation-based)
         print("\n--- Event-wise and Affiliation-based Scores ---")
         try:
             # Use first channel for basic ESA scores
             esa_metric = ESAScores(
                 betas=self.beta,
-                full_range=full_range
+                full_range=full_range,
+                select_labels={"Category": ["Anomaly"]}
             )
-            print("Telemetry range:", full_range[0], "to", full_range[1])
-            print("Labels range:", y_true_df["StartTime"].min(), "to", y_true_df["EndTime"].max())
+            
             # Convert single channel for ESAScores
-            y_pred_first = y_pred_dict[self.channel_names[0]]
-            esa_results = esa_metric.score(y_true_df, y_pred_first)
+            # y_pred_first = y_pred_dict[self.channel_names[0]]
+            # esa_results = esa_metric.score(y_true_df, y_pred_first)
+
+            esa_results = esa_metric.score(y_true_df, y_any_pred)
             
             for metric_name, value in esa_results.items():
                 print(f"{metric_name:30s}: {value:8.4f}")

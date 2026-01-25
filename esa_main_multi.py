@@ -278,7 +278,10 @@ if __name__ == "__main__":
     
     print("\n\nFinal Results Summary:")
     for metric, value in results.items():
-        print(f"{metric:15s}: {value:.4f}")
-    
+        if isinstance(value, (int, float, np.floating)):
+            print(f"{metric:15s}: {value:.4f}")
+        else:
+            print(f"{metric:15s}: {value}")
+        
 
     
