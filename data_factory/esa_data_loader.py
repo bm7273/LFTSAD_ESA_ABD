@@ -124,7 +124,7 @@ def get_esa_loader(csv_path,
                    step=1,
                    target_channels=None,
                    mode='train',
-                   num_workers=8):
+                   num_workers=12):
     """
     Create DataLoader for ESA data
     
