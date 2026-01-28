@@ -10,7 +10,7 @@ import pandas as pd
 import os
 import time
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
-
+from tqdm import tqdm
 from model.LFTSAD import LFTSAD
 from data_factory.esa_data_loader import get_esa_loader, ESALabelsParser
 from ESA_metrics import ESAScores, ADTQC, ChannelAwareFScore
