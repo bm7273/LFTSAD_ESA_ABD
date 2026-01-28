@@ -305,8 +305,11 @@ class ESASolver:
                 ground_truth=ground_truth,
                 anomaly_scores=anomaly_scores
             )
-            return accuracy, precision, recall, f_score, esa_results, channel_results, adtqc, t_test
-        else:
+        
+            return accuracy, precision, recall, f_score, esa_results, channel_results, adtqc, t_test, pred_binary
+
+        else: 
+
             return accuracy, precision, recall, f_score, t_test
         
     def _reconstruct_from_windows(self, scores, labels, start_indices):
