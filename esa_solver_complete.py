@@ -300,7 +300,7 @@ class ESASolver:
         
         # ESA Metrics with memory optimization
         if self.use_esa_metrics:
-            esa_results, channel_results, adtqc = self._compute_esa_metrics_optimized(
+            esa_results, channel_results, adtqc = self._compute_esa_metrics(
                 predictions=pred_binary,
                 ground_truth=ground_truth,
                 anomaly_scores=anomaly_scores
