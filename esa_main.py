@@ -79,7 +79,7 @@ def setup_esa_experiment(
         'sw_loss': 0,
         
         # Evaluation
-        'anormly_ratio': 1.0,  # Percentage of samples to mark as anomalies
+        'anormly_ratio': 0.1,  # Percentage of samples to mark as anomalies
         'use_esa_metrics': True,
         'beta': 0.5,  # Beta for F-beta score (0.5 favors precision)
         
