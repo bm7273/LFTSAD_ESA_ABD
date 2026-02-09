@@ -366,7 +366,12 @@ if __name__ == "__main__":
 
     else:
 
-        targets = None
+        targets = [
+            "channel_18", "channel_19", "channel_20",
+            "channel_21", "channel_22", "channel_23",
+            "channel_24", "channel_25", "channel_26",
+            "channel_27", "channel_28"
+        ]
 
     config = setup_esa_experiment(
         data_dir=DATA_DIR,
