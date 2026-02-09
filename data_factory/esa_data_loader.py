@@ -82,7 +82,7 @@ class ESADataset(Dataset):
                 val_df[self.target_channels].values.astype(np.float32))
 
             self.data = train_data
-            print("train:", self.train.shape)
+            print("train:", self.data.shape)
 
             self.val = val_data
             print("val:", self.val.shape)
