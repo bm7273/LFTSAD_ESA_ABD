@@ -24,7 +24,8 @@ def setup_esa_experiment(
     data_dir,
     dataset_name="3_months",
     target_channels=None,
-    experiment_name="lftsad_esa_experiment"
+    experiment_name="lftsad_esa_experiment",
+    mission=1
 ):
     """
     Set up configuration for ESA experiment
@@ -48,16 +49,16 @@ def setup_esa_experiment(
     
     config = {
         # Experiment info
-        'experiment_name': experiment_name,
+        'experiment_name': experiment_name+mission,
         
         # Data paths
         'test_csv_path': os.path.join(data_dir, 'preprocessed', 'multivariate', 
-                                      'ESA-Mission1-semi-supervised', f'{dataset_name}.test.csv'),
-        'labels_csv_path': os.path.join(data_dir, 'ESA-Mission1', 'labels.csv'),
+                                      f'ESA-{mission}-semi-supervised', f'{dataset_name}.test.csv'),
+        'labels_csv_path': os.path.join(data_dir, f'ESA-{mission}', 'labels.csv'),
         
         # Optional: if you have training data
         'train_csv_path': os.path.join(data_dir, 'preprocessed', 'multivariate', 
-                                        'ESA-Mission1-semi-supervised', f'{dataset_name}.train.csv'),
+                                        f'ESA-{mission}-semi-supervised', f'{dataset_name}.train.csv'),
         
         # Channel selection
         'target_channels': target_channels,
@@ -84,7 +85,7 @@ def setup_esa_experiment(
         'beta': 0.5,  # Beta for F-beta score (0.5 favors precision)
         
         # Output
-        'output_dir': f'/content/drive/MyDrive/LFTSAD_ESA_ADB/results/{experiment_name}',
+        'output_dir': f'/content/drive/MyDrive/LFTSAD_ESA_ADB/results/{experiment_name+mission}',
     }
     
     # Create output directory
@@ -351,6 +352,7 @@ if __name__ == "__main__":
     dataset_name="3_months"
 
     parser.add_argument('--dataset', type=str, default=f'{dataset_name}')
+    parser.add_argument('--mission', type=str, default=1)
 
     args = parser.parse_args()
 
@@ -361,7 +363,8 @@ if __name__ == "__main__":
             "channel_41", "channel_42", "channel_43",
             "channel_44", "channel_45", "channel_46"
         ],
-        experiment_name=f"lftsad_{args.dataset}_6ch"
+        experiment_name=f"lftsad_{args.dataset}_6ch",
+        mission = f"Mission{args.mission}"
     )
     
     results = run_experiment(config)
